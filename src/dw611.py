@@ -7,7 +7,7 @@ class Deflector(SCAD_Object):
     inner_dia = 41.5
     thickness = 11
     #
-    spindle_inner_dia = 26
+    spindle_inner_dia = 22
     spindle_dia = inner_dia
     spindle_thickness = thickness - 2
     #
@@ -25,13 +25,13 @@ class Deflector(SCAD_Object):
     port_height = 4
     #
     vacuum_dia = inch2mm(1.25)
-    vacuum_plate_dia = vacuum_dia + 20
+    vacuum_plate_dia = vacuum_dia + 24
     vacuum_flag = True
-    vacuum_offset = 5.0
+    vacuum_offset = 17.5
     #
     magnet_dia = inch2mm(.25) + 0.2
     magnet_height = inch2mm(1 / 16.0)
-    magnet_offset = 2.0
+    magnet_offset = 3.0
     #
     screw_spacer_dia = inch2mm(0.345)
     screw_spacer_height = 2.4
@@ -47,18 +47,20 @@ class Deflector(SCAD_Object):
         port = Difference()(body, led_plate, screw_plate)
         return port
 
-    def body(self):
+    def body(self, holes=True):
         body = Cylinder(dia=self.outer_dia, h=self.thickness, center=True, padding=1.2)
         if self.vacuum_flag:
             x_offset = (self.outer_dia + self.vacuum_dia) / 2.0 + self.vacuum_offset
             vacuum_plate = Cylinder(dia=self.vacuum_plate_dia, h=self.thickness, center=True)
             vacuum_plate = Translate(x=x_offset)(vacuum_plate)
-            vacuum_port = Cylinder(dia=self.vacuum_dia, h=self.thickness + 2.0, center=True)
+            vacuum_port = Cylinder(dia1=self.vacuum_dia * 1.1, dia2=self.vacuum_dia, h=self.thickness + 2.0, center=True)
             vacuum_port = Translate(x=x_offset)(vacuum_port)
             body = Hull()(body, vacuum_plate)
-            body = Difference()(body, vacuum_port)
+            if holes:
+                body = Difference()(body, vacuum_port)
         spindle_hole = Cylinder(dia=self.inner_dia, h=self.thickness + 2.0, center=True)
-        body = Difference()(body, spindle_hole)
+        if holes:
+            body = Difference()(body, spindle_hole)
         return body
 
     def magnets(self):
@@ -107,6 +109,53 @@ class Deflector(SCAD_Object):
         deflector = SCAD_Globals(fn=40)(deflector)
         return deflector
 
+class DustShoe(Deflector):
+    gulley_width = 7.5
+    thickness = Deflector.thickness / 2.0
+
+    def inner_body(self):
+        body = Cylinder(dia=self.outer_dia * .65, h=self.thickness + 1, center=True, padding=1.2)
+        x_offset = (self.outer_dia + self.vacuum_dia) / 2.0 + self.vacuum_offset
+        vacuum_plate = Cylinder(dia=self.vacuum_plate_dia * .6, h=self.thickness + 1, center=True)
+        vacuum_plate = Translate(x=x_offset)(vacuum_plate)
+        body = Hull()(body, vacuum_plate)
+        return body
+
+    def strip_gulley(self):
+        body_outer_dia = self.outer_dia * .88
+        body_inner_dia = body_outer_dia - self.gulley_width
+        vacuum_plate_outer_dia = self.vacuum_plate_dia * .88
+        vacuum_plate_inner_dia = vacuum_plate_outer_dia - self.gulley_width
+        # outer
+        outer_body = Cylinder(dia=body_outer_dia, h=self.thickness, center=True, padding=1.2)
+        x_offset = (self.outer_dia + self.vacuum_dia) / 2.0 + self.vacuum_offset
+        vacuum_plate = Cylinder(dia=vacuum_plate_outer_dia, h=self.thickness + 1, center=True)
+        vacuum_plate = Translate(x=x_offset)(vacuum_plate)
+        outer_body = Hull()(outer_body, vacuum_plate)
+        # inner
+        inner_body = Cylinder(dia=body_inner_dia, h=self.thickness + 2, center=True, padding=1.2)
+        x_offset = (self.outer_dia + self.vacuum_dia) / 2.0 + self.vacuum_offset
+        vacuum_plate = Cylinder(dia=vacuum_plate_inner_dia, h=self.thickness + 2, center=True)
+        vacuum_plate = Translate(x=x_offset)(vacuum_plate)
+        inner_body = Hull()(inner_body, vacuum_plate)
+        #
+        gulley = Difference()(outer_body, inner_body)
+        return gulley
+
+    def scad(self):
+        body = self.body(holes=False)
+        inner_body = self.inner_body()
+        body = Difference()(body, inner_body)
+        # magnets
+        magnets = self.magnets()
+        dustshoe = Difference()(body, magnets)
+        # gulley
+        gulley = self.strip_gulley()
+        z_offset = self.thickness / -2.0
+        gulley = Translate(z=z_offset)(gulley)
+        dustshoe = difference()(dustshoe, gulley)
+        return dustshoe
+
 def render(obj, fn):
     scad_fn = fn + ".scad"
     stl_fn = fn + ".stl"
@@ -118,4 +167,5 @@ deflector = Deflector(vacuum_flag=False)
 render(deflector, "dw611_deflector")
 deflector = Deflector(vacuum_flag=True)
 render(deflector, "dw611_deflector_vacuum")
-
+dustshoe = DustShoe()
+render(dustshoe, "dustshoe")

@@ -6,7 +6,7 @@ $fn = 40;
                  render() {
                      difference() {
                          cylinder(r=20.75, h=9.0, center=true);
-                         cylinder(r=13.0, h=10.8, center=true);
+                         cylinder(r=11.0, h=10.8, center=true);
                     }
 
                 }

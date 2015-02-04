@@ -6,7 +6,7 @@ $fn = 40;
                  render() {
                      difference() {
                          cylinder(r=20.75, h=9.0, center=true);
-                         cylinder(r=13.0, h=10.8, center=true);
+                         cylinder(r=11.0, h=10.8, center=true);
                     }
 
                 }
@@ -17,14 +17,14 @@ $fn = 40;
                  difference() {
                      hull() {
                          cylinder(r=37.5, h=11.0, center=true);
-                         translate([58.375, 0.0, 0.0]) {
-                             cylinder(r=25.875, h=11.0, center=true);
+                         translate([70.875, 0.0, 0.0]) {
+                             cylinder(r=27.875, h=11.0, center=true);
                         }
 
                     }
 
-                     translate([58.375, 0.0, 0.0]) {
-                         cylinder(r=15.875, h=13.0, center=true);
+                     translate([70.875, 0.0, 0.0]) {
+                         cylinder(r1=17.4625, r2=15.875, h=13.0, center=true);
                     }
 
                 }
@@ -87,28 +87,28 @@ $fn = 40;
         }
 
          union() {
-             translate([58.375, 20.6, 0.0]) {
+             translate([70.875, 21.6, 0.0]) {
                  translate([0.0, 0.0, 4.8062499999999995]) {
                      cylinder(r=3.275, h=1.5875, center=true);
                 }
 
             }
 
-             translate([58.375, -20.6, 0.0]) {
+             translate([70.875, -21.6, 0.0]) {
                  translate([0.0, 0.0, 4.8062499999999995]) {
                      cylinder(r=3.275, h=1.5875, center=true);
                 }
 
             }
 
-             translate([0.0, 32.225, 0.0]) {
+             translate([0.0, 31.225, 0.0]) {
                  translate([0.0, 0.0, 4.8062499999999995]) {
                      cylinder(r=3.275, h=1.5875, center=true);
                 }
 
             }
 
-             translate([0.0, -32.225, 0.0]) {
+             translate([0.0, -31.225, 0.0]) {
                  translate([0.0, 0.0, 4.8062499999999995]) {
                      cylinder(r=3.275, h=1.5875, center=true);
                 }
